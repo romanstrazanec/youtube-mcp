@@ -19,8 +19,11 @@ export class YouTubeClient {
   }
 
   async searchLikedVideos(query: string, maxResults = 25): Promise<VideoResult[]> {
-    // Fetch liked videos playlist
-    const allLiked = await this.getLikedVideos(Math.min(maxResults * 4, 200));
+    const isListAll = query === "*" || query.trim() === "";
+    const fetchCount = isListAll ? maxResults : Math.min(maxResults * 4, 200);
+    const allLiked = await this.getLikedVideos(fetchCount);
+
+    if (isListAll) return allLiked.slice(0, maxResults);
 
     const queryTerms = query.toLowerCase().split(/\s+/);
     const scored = allLiked.map((video) => {
@@ -37,26 +40,9 @@ export class YouTubeClient {
   }
 
   async getLikedVideos(maxResults = 50): Promise<VideoResult[]> {
-    const videos: VideoResult[] = [];
-    let pageToken: string | undefined;
-
-    while (videos.length < maxResults) {
-      const res = await this.youtube.videos.list({
-        part: ["snippet"],
-        myRating: "like",
-        maxResults: Math.min(50, maxResults - videos.length),
-        pageToken,
-      });
-
-      for (const item of res.data.items || []) {
-        videos.push(this.mapVideo(item));
-      }
-
-      pageToken = res.data.nextPageToken ?? undefined;
-      if (!pageToken) break;
-    }
-
-    return videos;
+    // Use the hidden "LL" (Liked List) playlist — much more reliable
+    // than videos.list with myRating: "like" which returns incomplete results
+    return this.getPlaylistItems("LL", maxResults);
   }
 
   async searchPlaylists(query: string, maxResults = 25): Promise<VideoResult[]> {

@@ -12,17 +12,16 @@ const TOKEN_PATH = path.join(
 );
 
 const SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"];
+const REDIRECT_URI = "http://localhost:3000";
 
 interface Credentials {
   installed?: {
     client_id: string;
     client_secret: string;
-    redirect_uris: string[];
   };
   web?: {
     client_id: string;
     client_secret: string;
-    redirect_uris: string[];
   };
 }
 
@@ -37,10 +36,10 @@ interface TokenPayload {
 export async function getAuthenticatedClient(credentialsPath: string): Promise<OAuth2Client> {
   const content = await readFile(credentialsPath, "utf-8");
   const credentials: Credentials = JSON.parse(content);
-  const { client_id, client_secret, redirect_uris } =
+  const { client_id, client_secret } =
     credentials.installed || credentials.web || (() => { throw new Error("Invalid credentials.json format"); })();
 
-  const oauth2Client = new OAuth2Client(client_id, client_secret, redirect_uris[0]);
+  const oauth2Client = new OAuth2Client(client_id, client_secret, REDIRECT_URI);
 
   if (existsSync(TOKEN_PATH)) {
     const token = JSON.parse(await readFile(TOKEN_PATH, "utf-8")) as TokenPayload;
@@ -63,7 +62,6 @@ export async function authenticate(credentialsPath: string): Promise<void> {
   const { client_id, client_secret } =
     credentials.installed || credentials.web || (() => { throw new Error("Invalid credentials.json format"); })();
 
-  const REDIRECT_URI = "http://localhost:3000";
   const oauth2Client = new OAuth2Client(client_id, client_secret, REDIRECT_URI);
 
   const state = randomBytes(16).toString("hex");
