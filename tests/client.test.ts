@@ -44,35 +44,35 @@ describe("YouTubeClient", () => {
 
   describe("searchLikedVideos", () => {
     it("should return matching liked videos", async () => {
-      mockApi.videos.list.mockResolvedValueOnce({
+      mockApi.playlistItems.list.mockResolvedValueOnce({
         data: {
           items: [
             {
-              id: "v1",
               snippet: {
+                resourceId: { videoId: "v1" },
                 title: "Funk Concert Paris 2024",
                 description: "Amazing live funk show",
-                channelTitle: "Music Live",
+                videoOwnerChannelTitle: "Music Live",
                 publishedAt: "2024-01-10T00:00:00Z",
                 thumbnails: { default: { url: "https://img.youtube.com/v1.jpg" } },
               },
             },
             {
-              id: "v2",
               snippet: {
+                resourceId: { videoId: "v2" },
                 title: "TypeScript Tutorial",
                 description: "Learn TS basics",
-                channelTitle: "Code TV",
+                videoOwnerChannelTitle: "Code TV",
                 publishedAt: "2024-02-10T00:00:00Z",
                 thumbnails: { default: { url: "https://img.youtube.com/v2.jpg" } },
               },
             },
             {
-              id: "v3",
               snippet: {
+                resourceId: { videoId: "v3" },
                 title: "Paris Travel Guide",
                 description: "Best places in Paris",
-                channelTitle: "Travel Channel",
+                videoOwnerChannelTitle: "Travel Channel",
                 publishedAt: "2024-03-10T00:00:00Z",
                 thumbnails: { default: { url: "https://img.youtube.com/v3.jpg" } },
               },
@@ -94,7 +94,7 @@ describe("YouTubeClient", () => {
     });
 
     it("should return empty when no matches", async () => {
-      mockApi.videos.list.mockResolvedValueOnce({
+      mockApi.playlistItems.list.mockResolvedValueOnce({
         data: { items: [], nextPageToken: null },
       });
 
@@ -103,11 +103,11 @@ describe("YouTubeClient", () => {
     });
 
     it("should paginate through liked videos", async () => {
-      mockApi.videos.list
+      mockApi.playlistItems.list
         .mockResolvedValueOnce({
           data: {
             items: [
-              { id: "v1", snippet: { title: "Page 1 Video", description: "", channelTitle: "Ch", publishedAt: "", thumbnails: {} } },
+              { snippet: { resourceId: { videoId: "v1" }, title: "Page 1 Video", description: "", videoOwnerChannelTitle: "Ch", publishedAt: "", thumbnails: {} } },
             ],
             nextPageToken: "page2token",
           },
@@ -115,14 +115,14 @@ describe("YouTubeClient", () => {
         .mockResolvedValueOnce({
           data: {
             items: [
-              { id: "v2", snippet: { title: "Page 2 Video matching query", description: "", channelTitle: "Ch", publishedAt: "", thumbnails: {} } },
+              { snippet: { resourceId: { videoId: "v2" }, title: "Page 2 Video matching query", description: "", videoOwnerChannelTitle: "Ch", publishedAt: "", thumbnails: {} } },
             ],
             nextPageToken: null,
           },
         });
 
       const results = await client.searchLikedVideos("query", 25);
-      expect(mockApi.videos.list).toHaveBeenCalledTimes(2);
+      expect(mockApi.playlistItems.list).toHaveBeenCalledTimes(2);
       expect(results.length).toBe(1); // Only "Page 2 Video matching query" matches
     });
   });
