@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "YouTube MCP server for searching liked videos and watch history via Claude",
   "main": "dist/index.js",
+  "bin": {
+    "youtube-mcp": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
@@ -12,6 +15,23 @@
     "test:watch": "vitest"
   },
   "type": "module",
+  "license": "MIT",
+  "author": "Roman Strazanec",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/romanstrazanec/YoutubeMCP"
+  },
+  "keywords": [
+    "mcp",
+    "youtube",
+    "claude",
+    "model-context-protocol"
+  ],
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "engines": {
     "node": ">=18"
   },

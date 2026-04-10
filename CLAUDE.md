@@ -8,7 +8,7 @@ YouTube MCP (Model Context Protocol) server for searching personal YouTube data 
 - **MCP SDK**: `@modelcontextprotocol/sdk` (stdio transport)
 - **YouTube API**: `googleapis` npm package (YouTube Data API v3, free tier — 10,000 quota units/day)
 - **Database**: SQLite with FTS5 full-text search (`better-sqlite3`)
-- **Auth**: OAuth2 via `google-auth-library`
+- **Auth**: OAuth2 via `google-auth-library` (auto-triggers on first API call if no token exists)
 
 ## Architecture
 
@@ -33,3 +33,5 @@ Vector search (sqlite-vec + embeddings) can be added later if keyword search pro
 - SQLite FTS5 over vector DB: simpler, no embedding model dependency, Claude handles semantic interpretation
 - Google Takeout for history: YouTube API deprecated watch history access in 2016
 - TypeScript chosen for best MCP SDK support and googleapis ecosystem
+- Auto-auth on first use: no separate `npm run auth` step needed, OAuth flow triggers automatically
+- Published as npm package: users install via `npx youtube-mcp`, no clone/build required

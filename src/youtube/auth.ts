@@ -48,9 +48,13 @@ export async function getAuthenticatedClient(credentialsPath: string): Promise<O
     return oauth2Client;
   }
 
-  throw new Error(
-    "Not authenticated. Run `npm run auth` to authenticate with YouTube first."
-  );
+  // No token found — trigger OAuth flow automatically
+  console.error("No YouTube token found. Starting authentication...");
+  await authenticate(credentialsPath);
+
+  const token = JSON.parse(await readFile(TOKEN_PATH, "utf-8")) as TokenPayload;
+  oauth2Client.setCredentials(token);
+  return oauth2Client;
 }
 
 export async function authenticate(credentialsPath: string): Promise<void> {
@@ -59,7 +63,7 @@ export async function authenticate(credentialsPath: string): Promise<void> {
   const { client_id, client_secret } =
     credentials.installed || credentials.web || (() => { throw new Error("Invalid credentials.json format"); })();
 
-  const REDIRECT_URI = "http://localhost:3000/oauth2callback";
+  const REDIRECT_URI = "http://localhost:3000";
   const oauth2Client = new OAuth2Client(client_id, client_secret, REDIRECT_URI);
 
   const state = randomBytes(16).toString("hex");

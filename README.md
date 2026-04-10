@@ -9,14 +9,29 @@ A Model Context Protocol (MCP) server that lets you search through your YouTube 
 - **Search watch history** — Full-text search over imported Google Takeout watch history
 - **Import Takeout** — Import your YouTube watch history from Google Takeout
 
-## Prerequisites
+## Quick Start
 
-- Node.js >= 18
-- A Google Cloud project with YouTube Data API v3 enabled
-- OAuth2 credentials (for liked videos and playlists)
-- Google Takeout export (for watch history)
+1. [Set up Google Cloud credentials](#1-create-a-google-cloud-project) (steps 1–4 below)
+2. Save `credentials.json` to `~/.youtube-mcp/credentials.json`
+3. Add to your Claude Code settings (`~/.claude/settings.json`):
 
-## Setup
+```json
+{
+  "mcpServers": {
+    "youtube": {
+      "command": "npx",
+      "args": ["youtube-mcp"],
+      "env": {
+        "YOUTUBE_MCP_CREDENTIALS": "~/.youtube-mcp/credentials.json"
+      }
+    }
+  }
+}
+```
+
+The first time you use a YouTube API tool, the server will automatically open a browser for OAuth authentication.
+
+## Google Cloud Setup
 
 ### 1. Create a Google Cloud Project
 
@@ -39,42 +54,28 @@ A Model Context Protocol (MCP) server that lets you search through your YouTube 
    - **App name**: `YouTube MCP`
    - **User support email**: your email
    - **Developer contact**: your email
-4. Click **Save and Continue**
-5. On the **Scopes** page, click **Add or Remove Scopes**
-6. Find and add `https://www.googleapis.com/auth/youtube.readonly`
-7. Click **Save and Continue**
-8. On the **Test users** page, click **Add Users** and add your Google email
-9. Click **Save and Continue**
+4. In the left sidebar, click **Data access**
+   - Click **Add or Remove Scopes**
+   - Find and add `https://www.googleapis.com/auth/youtube.readonly`
+   - Click **Update**, then **Save**
+5. In the left sidebar, click **Audience**
+   - Under **Test users**, click **Add Users** and add your Google email
+   - Click **Save**
 
 > **Note**: While the app is in "Testing" status, only test users can authenticate. This is fine for personal use.
 
 ### 4. Create OAuth2 Credentials
 
-1. Go to [APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials)
-2. Click **Create Credentials** → **OAuth client ID**
+1. In the left sidebar, click **Clients** (or go to [APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials))
+2. Click **Create Client** (or **Create Credentials** → **OAuth client ID**)
 3. Application type: **Web application**
 4. Name: `YouTube MCP`
-5. Under **Authorized redirect URIs**, add: `http://localhost:3000/oauth2callback`
+5. Under **Authorized redirect URIs**, add: `http://localhost:3000`
 6. Click **Create**
 7. Click **Download JSON** on the created credential
 8. Save the file as `~/.youtube-mcp/credentials.json`
 
-### 5. Install and Build
-
-```bash
-npm install
-npm run build
-```
-
-### 6. Authenticate with YouTube
-
-```bash
-npm run auth
-```
-
-This opens a browser for Google OAuth. Sign in and grant YouTube read-only access. The token is saved to `~/.youtube-mcp/token.json`.
-
-### 7. (Optional) Import Watch History from Google Takeout
+## (Optional) Import Watch History from Google Takeout
 
 YouTube API no longer provides access to watch history. To search through your full history:
 
@@ -87,26 +88,14 @@ YouTube API no longer provides access to watch history. To search through your f
 
 The file can be imported via the `import_takeout` MCP tool once the server is running.
 
-## Configure in Claude
+## Development
 
-Add to your Claude Code MCP settings (`~/.claude/settings.json`):
-
-```json
-{
-  "mcpServers": {
-    "youtube": {
-      "command": "node",
-      "args": ["/path/to/YoutubeMCP/dist/index.js"],
-      "env": {
-        "YOUTUBE_MCP_CREDENTIALS": "~/.youtube-mcp/credentials.json",
-        "YOUTUBE_MCP_DATA_DIR": "~/.youtube-mcp"
-      }
-    }
-  }
-}
+```bash
+npm install
+npm run build
 ```
 
-Or for development:
+For development, use ts-node directly:
 
 ```json
 {
@@ -115,8 +104,7 @@ Or for development:
       "command": "npx",
       "args": ["ts-node", "--esm", "/path/to/YoutubeMCP/src/index.ts"],
       "env": {
-        "YOUTUBE_MCP_CREDENTIALS": "~/.youtube-mcp/credentials.json",
-        "YOUTUBE_MCP_DATA_DIR": "~/.youtube-mcp"
+        "YOUTUBE_MCP_CREDENTIALS": "~/.youtube-mcp/credentials.json"
       }
     }
   }
@@ -150,7 +138,3 @@ The YouTube Data API v3 is **free** with a default quota of **10,000 units per d
 | List playlist items | 1 unit per page |
 
 For personal use, you'll likely never hit the limit.
-
-## License
-
-MIT

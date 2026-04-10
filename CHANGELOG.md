@@ -13,6 +13,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `search_playlists` tool — search playlists and their video contents
 - `search_history` tool — full-text search over imported watch history using SQLite FTS5
 - `import_takeout` tool — import Google Takeout `watch-history.json` into local SQLite database
-- OAuth2 authentication flow for YouTube API with token persistence
+- OAuth2 authentication flow with auto-auth on first API call
+- `bin` entry in package.json — installable via `npx youtube-mcp`
 - CI pipeline with GitHub Actions (Node.js 18, 20, 22)
-- README with full YouTube API credential setup guide
+- Publish to npm workflow triggered on version tags
+- MIT LICENSE file
+- README with Quick Start section and Google Cloud setup guide
