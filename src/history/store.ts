@@ -90,7 +90,7 @@ export class HistoryStore {
     if (!terms) return [];
 
     const stmt = this.db.prepare(`
-      SELECT h.video_id, h.title, h.channel_title, h.watched_at, h.url
+      SELECT h.video_id AS videoId, h.title, h.channel_title AS channelTitle, h.watched_at AS watchedAt, h.url
       FROM history h
       JOIN history_fts fts ON h.rowid = fts.rowid
       WHERE history_fts MATCH ?
