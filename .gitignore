@@ -1,0 +1,24 @@
+node_modules/
+dist/
+*.js
+*.js.map
+*.d.ts
+!jest.config.js
+
+# Environment and credentials
+.env
+credentials.json
+token.json
+
+# SQLite database
+*.db
+
+# Google Takeout files
+takeout/
+
+# OS files
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
