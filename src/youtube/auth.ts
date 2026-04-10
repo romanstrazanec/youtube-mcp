@@ -3,6 +3,7 @@ import { readFile, writeFile } from "fs/promises";
 import { existsSync } from "fs";
 import { createServer } from "http";
 import { URL } from "url";
+import { randomBytes } from "crypto";
 import path from "path";
 
 const TOKEN_PATH = path.join(
@@ -61,9 +62,12 @@ export async function authenticate(credentialsPath: string): Promise<void> {
   const REDIRECT_URI = "http://localhost:3000/oauth2callback";
   const oauth2Client = new OAuth2Client(client_id, client_secret, REDIRECT_URI);
 
+  const state = randomBytes(16).toString("hex");
+
   const authorizeUrl = oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES,
+    state,
   });
 
   console.log("Open this URL in your browser to authorize:\n");
@@ -73,7 +77,17 @@ export async function authenticate(credentialsPath: string): Promise<void> {
   const code = await new Promise<string>((resolve, reject) => {
     const server = createServer((req, res) => {
       const url = new URL(req.url!, `http://localhost:3000`);
+      const returnedState = url.searchParams.get("state");
       const authCode = url.searchParams.get("code");
+
+      if (returnedState !== state) {
+        res.writeHead(403);
+        res.end("Invalid state parameter");
+        server.close();
+        reject(new Error("OAuth state mismatch — possible CSRF attack"));
+        return;
+      }
+
       if (authCode) {
         res.writeHead(200, { "Content-Type": "text/html" });
         res.end("<h1>Authentication successful!</h1><p>You can close this window.</p>");
@@ -86,7 +100,7 @@ export async function authenticate(credentialsPath: string): Promise<void> {
         reject(new Error("No authorization code received"));
       }
     });
-    server.listen(3000);
+    server.listen(3000, "127.0.0.1");
   });
 
   const { tokens } = await oauth2Client.getToken(code);
@@ -94,14 +108,14 @@ export async function authenticate(credentialsPath: string): Promise<void> {
 
   const dir = path.dirname(TOKEN_PATH);
   const { mkdirSync } = await import("fs");
-  mkdirSync(dir, { recursive: true });
+  mkdirSync(dir, { recursive: true, mode: 0o700 });
 
-  await writeFile(TOKEN_PATH, JSON.stringify(tokens, null, 2));
+  await writeFile(TOKEN_PATH, JSON.stringify(tokens, null, 2), { mode: 0o600 });
   console.log(`\nToken saved to ${TOKEN_PATH}`);
 }
 
 // Run standalone for initial auth
 if (process.argv[1]?.endsWith("auth.ts") || process.argv[1]?.endsWith("auth.js")) {
-  const credPath = process.env.YOUTUBE_MCP_CREDENTIALS || path.join(process.cwd(), "credentials.json");
+  const credPath = process.env.YOUTUBE_MCP_CREDENTIALS || path.join(process.env.HOME || "~", ".youtube-mcp", "credentials.json");
   authenticate(credPath).catch(console.error);
 }

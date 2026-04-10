@@ -20,7 +20,7 @@ MCP server exposes tools that Claude can call:
 
 ## Data Sources
 
-- **YouTube Data API v3** — for liked videos, playlists, subscriptions (live data, OAuth2 required)
+- **YouTube Data API v3** — for liked videos, playlists (live data, OAuth2 required)
 - **Google Takeout export** — for full watch history (must be manually exported, no API available)
 
 ## Search Strategy

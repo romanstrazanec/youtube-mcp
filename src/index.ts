@@ -7,6 +7,8 @@ import { YouTubeClient } from "./youtube/client.js";
 import { HistoryStore } from "./history/store.js";
 import { importTakeout } from "./history/importer.js";
 
+const MAX_RESULTS = 200;
+
 const CREDENTIALS_PATH =
   process.env.YOUTUBE_MCP_CREDENTIALS ||
   path.join(process.env.HOME || "~", ".youtube-mcp", "credentials.json");
@@ -34,7 +36,7 @@ server.tool(
   "Search through imported YouTube watch history (from Google Takeout). Uses full-text search over video titles and channel names.",
   {
     query: z.string().describe("Search query (keywords, titles, channels)"),
-    limit: z.number().optional().default(25).describe("Max results"),
+    limit: z.number().max(MAX_RESULTS).optional().default(25).describe("Max results"),
   },
   async ({ query, limit }) => {
     const results = store.search(query, limit);
@@ -77,7 +79,7 @@ server.tool(
   "Search through liked videos on YouTube via the YouTube Data API. Searches titles, descriptions, and channel names.",
   {
     query: z.string().describe("Search query (keywords, titles, channels)"),
-    limit: z.number().optional().default(25).describe("Max results"),
+    limit: z.number().max(MAX_RESULTS).optional().default(25).describe("Max results"),
   },
   async ({ query, limit }) => {
     try {
@@ -103,9 +105,9 @@ server.tool(
         ],
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      console.error("Error searching liked videos:", error);
       return {
-        content: [{ type: "text" as const, text: `Error searching liked videos: ${message}` }],
+        content: [{ type: "text" as const, text: "Error searching liked videos. Check that you are authenticated (run `npm run auth`)." }],
         isError: true,
       };
     }
@@ -118,7 +120,7 @@ server.tool(
   "Search through YouTube playlists and their videos. Searches playlist names and video contents.",
   {
     query: z.string().describe("Search query (keywords, titles, playlist names)"),
-    limit: z.number().optional().default(25).describe("Max results"),
+    limit: z.number().max(MAX_RESULTS).optional().default(25).describe("Max results"),
   },
   async ({ query, limit }) => {
     try {
@@ -144,9 +146,9 @@ server.tool(
         ],
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      console.error("Error searching playlists:", error);
       return {
-        content: [{ type: "text" as const, text: `Error searching playlists: ${message}` }],
+        content: [{ type: "text" as const, text: "Error searching playlists. Check that you are authenticated (run `npm run auth`)." }],
         isError: true,
       };
     }
@@ -162,7 +164,15 @@ server.tool(
   },
   async ({ filePath }) => {
     try {
-      const imported = await importTakeout(filePath, store);
+      const resolved = path.resolve(filePath);
+      if (!resolved.endsWith(".json")) {
+        return {
+          content: [{ type: "text" as const, text: "File must be a .json file (Google Takeout watch-history.json)." }],
+          isError: true,
+        };
+      }
+
+      const imported = await importTakeout(resolved, store);
       const total = store.getCount();
 
       return {
@@ -174,9 +184,9 @@ server.tool(
         ],
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      console.error("Error importing takeout data:", error);
       return {
-        content: [{ type: "text" as const, text: `Error importing takeout data: ${message}` }],
+        content: [{ type: "text" as const, text: "Error importing takeout data. Ensure the file exists and is valid Google Takeout watch-history.json." }],
         isError: true,
       };
     }
