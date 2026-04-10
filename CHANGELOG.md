@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.1] - 2026-04-10
+
+### Fixed
+
+- Repository URL in package.json updated to renamed repo
+
+### Changed
+
+- Package published as `@romanstrazanec/youtube-mcp`
+- Switched to npm Trusted Publishing (OIDC) for CI releases
+
 ## [1.0.0] - 2026-04-10
 
 ### Added

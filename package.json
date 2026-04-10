@@ -1,6 +1,6 @@
 {
   "name": "@romanstrazanec/youtube-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "YouTube MCP server for searching liked videos and watch history via Claude",
   "main": "dist/index.js",
   "bin": {
@@ -20,7 +20,7 @@
   "author": "Roman Strazanec",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/romanstrazanec/YoutubeMCP.git"
+    "url": "git+https://github.com/romanstrazanec/youtube-mcp.git"
   },
   "keywords": [
     "mcp",
