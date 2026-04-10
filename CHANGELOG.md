@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.2] - 2026-04-10
+
+### Fixed
+
+- OAuth redirect URI: use hardcoded `http://localhost:3000` instead of reading `redirect_uris` from credentials (web credentials only have `javascript_origins`)
+- Liked videos: fetch from `LL` playlist instead of `videos.list` with `myRating: "like"` which returned incomplete results
+- Support `*` query to list liked videos without filtering
+
 ## [1.0.1] - 2026-04-10
 
 ### Fixed
