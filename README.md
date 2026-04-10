@@ -20,7 +20,7 @@ A Model Context Protocol (MCP) server that lets you search through your YouTube 
   "mcpServers": {
     "youtube": {
       "command": "npx",
-      "args": ["youtube-mcp"],
+      "args": ["@romanstrazanec/youtube-mcp"],
       "env": {
         "YOUTUBE_MCP_CREDENTIALS": "~/.youtube-mcp/credentials.json"
       }
